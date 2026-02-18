@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package lua.v1;
+
+option go_package = "github.com/thomas-maurice/testnats/gen/lua/v1;luav1";
+
+service LuaService {
+  // Execute runs a Lua script and returns the result.
+  rpc Execute(ExecuteRequest) returns (ExecuteResponse) {}
+}
+
+message ExecuteRequest {
+  // The Lua script to execute.
+  string script = 1;
+  // Variables to inject as globals into the Lua environment.
+  map<string, string> variables = 2;
+}
+
+message ExecuteResponse {
+  // The return value of the script (the global "result" variable).
+  string result = 1;
+  // Error message if execution failed.
+  string error = 2;
+  // Log lines captured during execution.
+  repeated string logs = 3;
+}

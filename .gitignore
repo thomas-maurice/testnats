@@ -1,0 +1,4 @@
+.kube/
+/server
+/client
+.claude/
