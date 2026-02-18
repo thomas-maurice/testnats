@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Take the live pods screenshot with kube-system namespace."""
+"""Take the live pods screenshot with default namespace."""
 
 import time
 from selenium import webdriver
@@ -22,7 +22,7 @@ def setup_driver():
 def main():
     driver = setup_driver()
     driver.get(BASE_URL)
-    time.sleep(1)
+    time.sleep(2)
 
     # Click K8s: Live Pods
     examples = driver.find_elements(By.CSS_SELECTOR, ".sidebar .example")
@@ -31,16 +31,6 @@ def main():
             ex.click()
             break
     time.sleep(0.5)
-
-    # Replace the namespace variable value via the textarea (hacky but works)
-    # The script hardcodes 'namespace' variable — just change it in the script text
-    textarea = driver.find_element(By.CSS_SELECTOR, "textarea.code")
-    driver.execute_script(
-        "arguments[0].value = arguments[0].value; "
-        "arguments[0].dispatchEvent(new Event('input', {bubbles: true}))",
-        textarea,
-    )
-    time.sleep(0.2)
 
     # Click Run with default namespace
     btn = driver.find_element(By.CSS_SELECTOR, ".btn-run")

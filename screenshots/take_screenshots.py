@@ -90,16 +90,9 @@ def main():
     click_run(driver)
     screenshot(driver, "06_k8s_admission_policy.png")
 
-    # 7. K8s Live Pods (if cluster is available)
+    # 7. K8s Live Pods (if cluster is available, run with default namespace)
     try:
         click_example(driver, "K8s: Live Pods")
-        # Change namespace to kube-system for more interesting output
-        vars_header = driver.find_element(By.CSS_SELECTOR, ".vars-header")
-        vars_header.click()
-        time.sleep(0.2)
-        val_input = driver.find_element(By.CSS_SELECTOR, ".var-row input.val")
-        val_input.clear()
-        val_input.send_keys("kube-system")
         click_run(driver)
         screenshot(driver, "07_k8s_live_pods.png")
     except Exception as e:

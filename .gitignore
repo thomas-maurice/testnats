@@ -2,3 +2,5 @@
 /server
 /client
 .claude/
+web/dist/
+web/node_modules/

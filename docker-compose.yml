@@ -31,7 +31,6 @@ services:
       NATS_URL: nats://nats:4222
       NATS_SUBJECT: rpc
       LISTEN_ADDR: ":8080"
-      WEB_DIR: /srv/web
     depends_on:
       nats:
         condition: service_started

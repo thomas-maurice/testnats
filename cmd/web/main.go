@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"io/fs"
 	"log"
 	"net/http"
 	"os"
@@ -16,6 +17,7 @@ import (
 
 	luav1 "github.com/thomas-maurice/testnats/gen/lua/v1"
 	"github.com/thomas-maurice/testnats/gen/lua/v1/luav1connect"
+	webstatic "github.com/thomas-maurice/testnats/web"
 )
 
 type executeRequest struct {
@@ -42,10 +44,6 @@ func main() {
 	listenAddr := os.Getenv("LISTEN_ADDR")
 	if listenAddr == "" {
 		listenAddr = ":8080"
-	}
-	webDir := os.Getenv("WEB_DIR")
-	if webDir == "" {
-		webDir = "web"
 	}
 
 	log.Printf("connecting to NATS at %s", natsURL)
@@ -95,7 +93,11 @@ func main() {
 		json.NewEncoder(w).Encode(out)
 	})
 
-	mux.Handle("/", http.FileServer(http.Dir(webDir)))
+	distFS, err := fs.Sub(webstatic.DistFS, "dist")
+	if err != nil {
+		log.Fatalf("failed to load embedded static files: %v", err)
+	}
+	mux.Handle("/", http.FileServer(http.FS(distFS)))
 
 	srv := &http.Server{Addr: listenAddr, Handler: mux}
 

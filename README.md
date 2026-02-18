@@ -43,7 +43,7 @@ Open **http://localhost:8080** in your browser.
 To enable live cluster queries (the `k8sclient` module), create a token-based kubeconfig:
 
 ```bash
-# Create a service account with view permissions
+# Create a service account with view permissions + node access
 kubectl apply -f - <<'EOF'
 apiVersion: v1
 kind: ServiceAccount
@@ -62,6 +62,28 @@ subjects:
 roleRef:
   kind: ClusterRole
   name: view
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: glua-nats-demo-extra
+rules:
+- apiGroups: [""]
+  resources: ["nodes"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: glua-nats-demo-extra
+subjects:
+- kind: ServiceAccount
+  name: glua-nats-demo
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: glua-nats-demo-extra
   apiGroup: rbac.authorization.k8s.io
 EOF
 

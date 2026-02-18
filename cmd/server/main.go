@@ -130,21 +130,24 @@ func (s *luaService) Execute(
 	// value so users don't need to explicitly set a "result" global.
 	stackBase := L.GetTop()
 
+	// Try the modified (return-prepended) version first.
+	// Only fall back to the original if the modified version fails to COMPILE.
+	// This avoids masking runtime errors with syntax errors from the original.
 	modified := replScript(script)
-	if err := L.DoString(modified); err != nil {
-		// If the modified version fails to compile, try the original
-		if modified != script {
-			L.SetTop(stackBase)
-			if err2 := L.DoString(script); err2 != nil {
-				resp.Error = err2.Error()
-				resp.Logs = logs
-				return connect.NewResponse(resp), nil
-			}
-		} else {
-			resp.Error = err.Error()
-			resp.Logs = logs
-			return connect.NewResponse(resp), nil
+	runScript := modified
+	if modified != script {
+		if _, err := L.LoadString(modified); err != nil {
+			// Modified version doesn't compile — use original
+			runScript = script
 		}
+		// Reset stack (LoadString may have pushed a function or error)
+		L.SetTop(stackBase)
+	}
+
+	if err := L.DoString(runScript); err != nil {
+		resp.Error = err.Error()
+		resp.Logs = logs
+		return connect.NewResponse(resp), nil
 	}
 
 	// Check for return values on the stack first

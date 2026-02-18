@@ -2,3 +2,6 @@ server
 client
 .git
 .kube
+.claude
+web/node_modules
+web/dist
